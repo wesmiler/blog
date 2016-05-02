@@ -1,0 +1,9 @@
+/* @Project footer.min.css @Author Chen Date 2015-12-23*/
+.footer { width: 100%; height: auto !important; margin: 0px auto; text-align: center; }
+.copyright { margin: 0 auto; position: relative; bottom: 0px; color: #333;}
+.copyright p { margin: 4px 0px;}
+.copyright p span.notice { color: #F78B0B; font-weight: bold; }
+.copyright .count-code { display: inline-block; margin-left: 15px;}
+
+#back_footer { background-color: #f3f5c5; bottom: auto; position: absolute;}
+#back_footer .copyright { position: absolute; right: 0px; }

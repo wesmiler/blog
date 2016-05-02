@@ -1,0 +1,525 @@
+@2015-12-10
+<CI框架项目开发使用笔记>
+1、CI安装文件目录解析
+    1.解压后主目录中包括以下文件
+        1）application //应用程序目录，用于编写项目应用程序代码进行开发
+        2）system //系统目录，即CI框架核心内容，一般不改动
+        3）user_guide //用户手册目录，开发时一般删除。
+        4）index.php //项目入口文件，用于配置基础参数如App项目、核心文件名称或目录等。
+        
+    2.application目录下文件：
+        1）cache //缓存文件目录
+        2）config //当前项目配置文件目录，包括项目根目录、URL类型、数据库等配置。
+        3）controllers //控制器主目录，后台控制器主目录一般新建在其中。
+        4）core //核心扩展类目录
+        5）errors //错误页面文件目录
+        6）helpers //自定义辅助函数目录
+        7）hooks //钩子文件目录
+        8）language //语言包
+        9）libraries //自定义库文件
+        10）logs //日志目录
+        11）models //模型文件目录，自定义模型
+        12）third_party //第三方库文件目录
+        13）views //视图文件，开发时可以作为后台视图目录，然后再另外新建一个主题目录作为前台视图目录
+
+
+
+2、CI框架安装部署项目
+    1.安装步骤：
+        下载CI框架的安装包，解压缩将里面的application、system等文件拷贝到项目根目录中，线上则是wwwroot目录。
+
+    2.测试安装
+        在配置好PHP环境后，在浏览器输入相应访问当前项目的地址，如localhost/web/地址。
+        若出现Welcome to CodeIgniter！界面即表示安装成功。
+
+    3.项目部署配置
+        1）项目基础配置
+            ① base_url配置  => config配置文件中配置完整的路径本地就是项目访问路径、线上即为域名。
+                如： $config['base_url'] = ''; //设置路径即可，去掉则无配置
+            ② subclass_prefix  =>config配置文件中配置自定义扩展类前缀，默认为MY_不可配置为CI_。
+                如：$config['subclass_prefix'] = 'MY_'; //配置参数即可
+            ③入口文件配置自定义基础常量
+                在入口文件index页面中定义常量主要包括：'\\'目录符号、webapp项目名称等。
+                例如：
+                  define('DS', DIRECTORY_SEPARATOR);
+                  define('APPNAME', $application_folder);
+                  ......
+
+        2）辅助函数配置
+            在autoload配置文件中配置相关选项：
+            ① url辅助函数 => 在该文件中配置参数为url即可。
+                如： $autoload['helper'] = array('url'); //配置url参数即可，去掉即无配置。
+
+        3）数据库配置
+                打开config目录的database文件配置相应项目即可。
+                主要常用配置选项有：
+                    主机名、用户名、用户密码、数据库类型、数据库名、数据库表前缀。
+
+        4）项目常量配置
+                主要配置项目需要的自定义常量，在config目录下的constants文件最后面使用define函数进行配置。
+                若为路径则项目根目录可以省去(即application应用程序的父目录部分)，只要使用项目名开头即可，即如application文件中config目录的定义可以
+                直接使用define('CONFIGPATH','application/config');进行配置调用。
+
+        5）其他配置（config下配置）
+                ①autoload => 该配置文件用于设置自动加载的配置文件模块如url的routes、数据库的databases等。
+                ②doctypes => 文档头类型配置
+                ③foreign_chars => 外文翻译对应字符配置
+                ④hooks => 钩子扩展的相关配置
+                ⑤mencache => mencache缓存相关配置
+                ⑥migration => 迁移操作相关配置
+                ⑦mimes => 资源媒体类型，如文件资源则是后缀类型。
+                ⑧profiler => profiler分析工具
+                ⑨smileys => 表情笑脸符号配置。
+                ⑩user_agents => 用户代理相关配置
+
+        6）部署后台文件目录
+                ①创建后台的项目目录
+                    在controllers目录下新建一个项目名称作为后台的主目录如admin。
+                ②创建设置视图目录
+                  有如下方法：
+                    1>在application同级目录下或其他目录下新建一个主题目录如themes并新建子目
+                        录default和views目录作为前后台的主题目录来使用，至于前后台使用哪个，需在前后台父控制器中指定，通常有主题的视图目录作为前台视图。
+
+                        然后在config配置目录下的constants配置文件中末尾自定义主题目录常量
+                        例如： 
+                            //表示将app应用目录下的themes作为前台视图主题目录
+                            //而views/admin目录将作为了后台视图目录，若非views目录
+                            //则需要在入口文件中设置$view_folder，此处为：webapp/views/admin
+                            define('THEME_DIR',APPNAME.'/themes/');
+
+                            //表示前台的默认主题目录是default
+                            define('DEFAULT_THEME','default/');
+                  ③创建资源目录
+                      1>创建资源调用目录
+                          在根目录下创建资源目录，如：sources，该目录主要作为前后台的图片、js、css、插件等的调用。
+
+                      2>创建文件保存目录
+                          在根目录下创建上传文件保存目录，如：uploads，该目录用于保存上传文件。
+
+                      3>其他方式创建资源调用目录
+                          也可以将资源目录和上传文件目录、创建于application应用目录下的views中，但是需要先将
+                          application目录下的htaccess核心文件的访问权限控制去掉。
+                          
+                      注：选择3方式的好处是这样的方式目录比较美观，坏处是htaccess配置不当导致漏洞和其他安全问题。
+                              因此一般推荐使用1和2一起使用。
+
+
+        7）扩展loader和controller类并将前后台父控制器进行划分
+                ①扩展loader类
+                    在application的core下新建一个自己的扩展类来扩展CI_Loader类。
+                    主要代码功能：
+                        使用define定义一个主题模板常量 如: define('_theme', 'default/');
+                        使用构造函数调用父类构造函数，且定义默认视图路径（若使用默认的views路径则不需要编写此功能）
+                        如：使用$this ->_ci_view_path = array(路径=>true); //路径可以使用FCPATH和BASEPATH等常量构造
+
+                ②扩展controller控制器类
+                    同样新建一个扩展类文件，创建两个类（前台和后台父类）来扩展CI_Controller控制器类，然后进行相应的操作如主题划分。
+
+                注：扩展类的类名应以MY_开头且遵循命名规范，类文件名和类名相同
+                        或者与$config['subclass_prefix'] = 'MY_'; 所设置的相同（不能定义为CI_）。
+
+                示例代码如下：
+                1>Loader扩展类：
+                         defined('BASEPATH') OR exit('No direct script access allowed');
+
+                         /**
+                         * MY_Loader class description
+                         * @author Chen
+                         */
+                         class MY_Loader extends CI_Loader{
+                             protected $_theme = '';
+                             function __construct()
+                             {
+                                 parent::__construct();
+                                 $this->_theme = DEFAULT_THEME; //设置前台项目的默认主题文件路径
+                             }
+
+                             /*switch theme default open*/
+                             public function switch_themes($open=TRUE) //设置前台视图并开启主题
+                             {
+                                 if($open)
+                                 {
+                                      $theme_dir = str_replace('/',DS,FCPATH.THEME_DIR.$this->_theme);
+
+                                      //设置前台视图主题目录
+                                      $this->_ci_view_paths = array($theme_dir=>TRUE); 
+                                 }
+                             }
+                         }
+
+                2>项目前后台父控制器扩展类：
+                        /**
+                        * 自定义父控制器包括前后台父控制器
+                        * Controller Class desccription
+                        * these class will as ext class to call the web and adminproject controllers
+                        * @author Chen
+                        */
+                        defined('BASEPATH') OR exit(' No direct script access allowed');
+                       
+                        /*home_controller as web controller*/
+                        class Home_Controller extends CI_Controller{ 
+                            function __construct(){
+                                parent::__construct();
+                                //设置前台视图目录并开启主题，即使用自定义视图和主题目录
+                                $this->load->switch_themes(TRUE); 
+                            }
+                        }
+
+                        /*admin_controller as admin controller*/
+                        class Admin_Controller extends CI_Controller{
+                            function __construct(){
+                                parent::__construct();
+                                //不设置前台视图目录不开启主题，即使用默认views视图目录
+                                $this->load->switch_themes(FALSE); 
+                            }
+                        }
+
+                    ?>
+
+        8）测试编写前后台控制器
+              1>前台控制器
+                  在controllers目录下编写相应的前台控制器，注意其继承的是Home_Controller父控制器而不再是CI_Controller控制器。
+
+              2>前台控制器
+                  在controllers目录下编写相应的前台控制器，注意其继承的是Home_Controller父控制器而不再是CI_Controller控制器。
+
+              3>其他控制器类似编写实现即可。
+
+              注意：在编写项目控制器时，要注意若使用index控制器或同类名模块操作，则要
+                          记得重写构造函数并继承父类的构造函数，否则将执行两次的问题。
+
+
+        9）配置URL路由和URL后缀
+              1.设置Rewrite方式的URL路由
+                  在index.php入口文件的同级目录下创建并配置
+                  .htaccess文件，配置如下：
+                   <Ifmodule mod_rewrite.c>
+                        RewriteEngine on
+
+                        RewriteCond %{REQUEST_FILENAME} !-f
+                        RewriteCond %{REQUEST_FILENAME} !-d        //此处有大坑。加上这两句可保证一般css、js文件正常加载。(注意删掉这句注释哦)
+
+                        RewriteCond $1 !^(index\.php|images|robots\.txt)
+                        RewriteRule ^(.*)$ /index.php/$1 [L]
+                    </Ifmodule>
+                   注：若项目不在根目录下则去掉index,php前的/符号。
+
+        10）设置编写公共函数
+                在system下core目录中的Common.php文件内编写自己的公共函数即可。
+
+
+        11）重写核心扩展类（可暂时不考虑）
+                重写扩展类只需要在core目录下新建自己的类文件，类名为CI_开头，文件名为去除前缀的首字母大写名称。
+
+
+
+3、项目开发应用技巧
+  1.项目目录部署问题
+        部署项目程序时可根据习惯放置system目录的位置，最好不放在与application同级目录下。另外可以修改system和application两个目录的名称从而上线时避免别人直接访问。
+
+        注意：修改system的位置和两个目录的名称后要记得在入口文件中修改相应的路径。
+                    路径从根目录后开始。如在根目录下则直接为对应名称，在application下则为application/system名称。
+
+    2.前后台视图主题目录部署问题
+        在部署前后台视图和主题目录时应将有主题的目录作为前台的视图，而没有主题的目录作为后台目录，并且在配置非默认视图目录常量时最好以APPNAME常量作为开始，从而方便在入口文件直接修改，而这样做需要在入口文件中自定义一个APPNAME的常量，值为$application_folder。
+
+    3.设置默认视图目录问题
+        默认视图目录为application下的views目录，若修改则应在入口文件中设置
+        $view_folder = '对应设置的路径'; //如views下的admin则应写为application/views/admin
+
+
+4、项目常用功能开发相关
+1.缓存问题
+      1）在CI中默认只能使用file缓存，对于页面缓存和数据缓存默认都存在cache配置路径如cache目录下。
+
+2.验证码辅助函数CAPTCHA的使用
+    1）使用辅助函数调用CAPTCHA类
+          $this->load->helper('captcha'); //加载captcha验证码类
+
+    2）设置验证码参数
+          $verify = array(
+              'word'=> '验证码字符串', //可选参数，默认为ASCII字符串
+              'img_path'=> './captcha/', //图片保存路径，必要参数，通常存放于根目录的资源文件的captcha目录中
+              'img_url'=>base_url().'captcha/', //验证码图片调用路径，必要参数
+              'font_path'=>'../fonts/texb.ttf', //字体文件调用路径，可选参数，默认为system中texb文件
+              'img_width'=> '宽', //可选参数，图片宽度
+              'img_height'=>'高', //可选参数， 图片高度
+              'expiration'=>有效时间, //可选参数，验证码有效期，默认7200秒，过期后无效。
+          );
+
+    3）创建验证码
+          $cap = create_captcha($verify); //创建验证码，$cap数组中包括img标签的图片，time时效，word字符串。
+          echo $cap['image']; //输出<img src="img_url" alt="" width="img_width" height="img_height" />的图片标签
+
+    4）验证码验证操作
+          ①先创建验证码，然后将字符串即$cap['word']存进数据库或session等内，并输出验证码。
+          ②前台输入验证码并提交
+          ③后台接收验证码数据并删除数据库或session中过期的验证码数据。
+          ④将session或数据库中对应的验证码数据与提交的验证码是否相同。
+          ⑤返回验证结果。
+
+3.CI框架中Session 和 Cookie的使用
+  1）在autoload配置中的$autoload['libraries']配置项中添加session参数
+  2）在config配置文件中配置sess开头的相关参数，如下：
+        $config['sess_driver'] = 'files'; //存储方式
+        $config['sess_cookie_name'] = 'ci_session'; //文件前缀以及cookie的名称
+        $config['sess_expiration'] = 10; //有效时间
+        $config['sess_save_path'] = APPPATH.'\cache\session\\'; //session文件保存路径，存储方式为files时
+        $config['sess_match_ip'] = FALSE; //开启IP匹配获取session，最好关闭
+        $config['sess_time_to_update'] = 300; //session_id自动更新时间
+        $config['sess_regenerate_destroy'] = FALSE; //可恢复方式销毁
+
+        $config['sess_table_name'] = 'ci_session'; //数据库方式存储的表名
+        $config['sess_use_database'] = FALSE; //save to database
+        $config['sess_expire_on_close'] = FALSE; //when close bowser  
+        $config['sess_encrypt _cookie'] = TRUE; //encrypt the cookie
+
+    3）设置session数据
+        1>添加自定义session数据：
+              $this->session->set_userdata($item); //按数组方式添加。可以一维二维数组等
+              $this->session->set_userdata('name',$data); //按字段方式设置
+
+        2>添加闪存数据
+              $this->session->set_flashdata($item); //数组方式添加
+              $this->session->set_flashdata('name', $data); //按字段方式设置
+
+            注：闪存数据即下次请求访问后，自动删除
+
+    4）session数据操作方式
+          开启session后直接在控制器中使用$this->session方式获取，主要包括以下方式：
+            ①$this->session->userdata('name'); //按session索引字段名获取
+            ②$this->all_userdata(); //获取所有session数据
+
+            ③$this->session->flashdata('name','data'); //按字段闪出数据
+            ④$this->session->flashdata('item'); //按变量名闪出数据
+            ④$this->session->keep_flashdata('item'); //在一个附加请求中保留一个闪出数据
+
+            ⑤$this->session->unset_userdata('name'); //按字段删除数据
+            ⑥$this->session->unset_userdata($item); //以数组赋空值方式清除数据
+
+            ⑦$this->session->set_destroy(); //销毁所有session数据
+
+4.CI框架下数据库的使用
+    1）配置文件参数的获取
+          1>通过类似$this->db->参数名的方式获取，如下：
+                $this->db->dsn; //获取dsn信息
+                $this->db->username; //获取用户名
+                $this->db->password; //获取连接密码
+                $this->db->hostname; //获取主机名
+                $this->db->dbprefix; //获取数据库表前缀
+                $this->db->char_set; //获取数据库编码
+                $this->db->port; //获取数据库连接端口
+                $this->db->dbdriver; //获取数据库驱动类型
+          2>通过引用配置文件方式获取，如下：
+                先使用require(APPPATH."\config\database.php");或include的方式调用配置文件，
+                然后直接使用$dbd 配置参数数组变量获取所有配置，也可以添加组名如$db['default']获取default组的配置；
+
+      2）数据库连接操作
+            1>自动连接
+                  在autoload配置文件中，的$autoload['libraries']选项中添加database参数。
+            2>手动连接
+                  在控制器中使用$this->load->database($dbconfig,TRUE); 传入dsn形式连接参数或数据库配置
+                  数组，包括主机名、用户名、密码、数据库名等或者直接传入数据库连接ID号。
+                  第二个参数为TRUE时才会返回一个连接对象，操作时使用该对象即可。多数据库连接时只要重复以上操作传入不同参数即可。
+            3>重新连接
+                  $this->db->reconnect(); 
+            4）关闭连接
+                  $this->db->close();
+      3）数据库查询操作
+            1>普通查询
+                  $query = $this->db->query($sql); //提交一个数据库查询，传入sql语句返回数据结果集
+                  $query = $this->db->simple_query($sql); //提交一个简单数据库查询，传入sql语句返回TRUE或FALSE
+            2>转义查询
+                  $this->db->escape(); //自动确定数据类型并对字符串进行转义且添加单引号
+            3>封装查询
+                  $sql = "select * from tablename where id = ? AND status = ?"; //设置封装字段和sql语句
+                  $this->db->query($sql,array(3,1)); //sql中问号将自动被封装替换为array数组对应值
+            4>快捷查询
+                  $this->db->get('tablename'); //快捷获取表中所有数据的结果集
+            5>快捷插入
+                  $this->db->insert('tablename', $data); //快捷插入，$data为数组形式
+            6>获取影响记录数
+                  $this->db->affected_rows(); //获取插入或更新后的影响记录数
+
+       4）数据查询结果获取
+            1>生成对象数组
+                  $result = $query->result(); //与result_object()相同，将查询数据结果集$query生成对象形式的数组
+            2>生成关联数组
+                  $array = $query->result_array(); //与将$query查询结果集生成关联数组
+            3>生成数据对象
+                  $object = $query->row(); //与将$query查询结果集生成数据对象
+                  $row = $query->row('num'); //与将$query查询结果集按行号（0开始）生成数据对象
+            4>生成数组
+                  $array = $query->row_array(); //与将$query查询结果集生成数组
+                  $array = $query->row_array('num'); //与将$query查询结果集按行号（0开始）生成数组
+            5>按游标获取数据记录
+                  $row = $query->first_row('array'); //获取第一行
+                  $row = $query->last_row('array'); //获取最后一行
+                  $row = $query->next_row('array'); //获取下一行
+                  $row = $query->previous_row('array'); //获取上一行
+              注：array参数表示按数组方式返回，默认按object方式返回记录。
+            6>返回查询结果行数
+                  $query->num_rows(); //返回查询结果记录行数
+            7>返回请求的字段列数
+                  $query->num_fields(); //返回当前请求的字段的列数
+            8>释放查询占用内存
+                  $query->free_result(); //释放$query对应查询所占用的内存资源
+
+            9>数据库其他常用操作
+                  $this->db->list_tables(); //输出数据库所有表
+                  $this->db->list_fields('tablename'); //输出数据表所有字段
+                  $this->db->table_exists(); //判断当前操作表是否存在
+            10>事务操作
+                  ①自动运行操作事务
+                      $this->db->trans_start(); //事务开始
+                      $this->db->query($sql1); //第一个操作或查询
+                      $this->db->query($sql2); //第二个操作或查询
+                      $this->db->query($sql3); //第三个操作或查询
+                      ......                                       //第N个查询操作
+                      $this->db->trans_complete(); //事务完成
+
+                  ①严格的事务
+                      $this->db->trans_strict(FALSE); //禁用严格事务
+
+                      注：当参数为TRUE时开启，开启后该事务之间的所有查询操作，只要
+                              有一个出错，则所有操作将回滚。
+                  ③测试模式事务
+                      $this->db->trans_start(TRUE); //设置参数为true,查询将被回滚不管成功与否
+                      $this->db->query($sql); //查询操作
+                      $this->db->trans_complete();
+                  ④手动运行事务
+                      $this->db->trans_begin(); //事务开启
+                      $this->db->query($sql); //查询操作
+                      if($this->db->trans_status()===FALSE){
+                        $this->db->trans_rollback(); //回滚
+                      }
+                      else
+                      {
+                        $this->db->trans_commit(); //提交事务
+                      }
+
+5.CI框架下上传文件和数据库文件保存路径设置
+  1）不管CI设置application应用目录访问权限与否，皆可以将上传文件目录和数据库文件目录
+        设置在application中，因为这样设置仍然能够进行文件操作，包括创建删除和修改等。
+
+
+6.CI框架下的分页类使用
+  1）分页类使用步骤：
+      1>设置默认分页配置参数
+          方法一：直接设置方式
+                        ①先使用$this->load->library('pagination')方法加载分页类，
+                        ②在然后使用$config[]的数组形式设置一些常用参数。
+                        ③设置好配置数组后，使用$this->pagination->initialize($config)的方式设置配置。
+                        ④输出或获取分页数据，使用$this->pagination->create_links()获得分页的html内容
+                           然后传到模板或输出到模板。
+          方法二：自动加载方式
+                        ①在config目录下新建名为pagination.php的分页配置文件。
+                        ②在该文件中设置一个名为$config的数组形式的配置参数数组。
+                        ③在autoload.php自动加载配置文件中的$autoload['libraries']加载类库行
+                           添加pagination类库使其自动加载。
+                        ④直接使用$this->pagination->create_links()获得分页的html内容
+                           然后传到模板或输出到模板。
+
+            注：在分页类使用时对于数据记录限制分页读取，例如数据库查询结果的limit其参数分别是
+                    $Page = $this->pagination->initialize(); //获取分页类等类库初始化的配置参数
+                    $Page->per_page;  //分页的每页记录数，作为limit的起点参数值
+                    $this->uri->segment (4); //分页URL中的参数，例如当前页+之前页的记录总数时（配置
+                                                                  中的uri_segment参数为FALSE），可直接作为limt的第二个参数偏移offset值使用若不是则需要自行转换再使用。
+
+
+      2>常见参数设置
+          //分页类所在方法的访问URL（如：'admin/index/index' 即index控制器中的index方法）
+          $config['base_url'] = '';    
+          $config['per_page'] = 10;   //每页显示页数
+
+          //分页URL中页码或分页参数所在的URI段数如：index/index/2即为2所在URI段为3
+          $config['uri_segment'] = 4;  
+          $config['num_link'] = 3; //两段显示的页数
+          //使用当前页码作为分页URL的参数或使用当前页与之前页的记录总数
+          $config['use_page_numbers'] = TRUE;     
+          $config['enable_query_strings'] = FALSE;    //use query string as URI routes
+          $config['query_string_segment'] = 'page';   //page string segment
+
+          $config['first_link'] = '首页';    //first page link name
+          $config['first_tag_open'] = '<li><a>';    //first page tag open
+          $config['first_tag_close'] = '</a></li>';      //first page tag close
+
+          $config['last_link'] = '尾页';    //last page link name
+          $config['last_tag_open'] = '<li>';     //last page tag open
+          $config['last_tag_close'] = '</li>';   //last page tag close
+
+          $config['prev_link'] = '上一页';      //prev page link name
+          // $config['prev_link'] = '&laquo;';      //prev page link name
+          $config['prev_tag_open'] = '<li class="prev">';
+          $config['prev_tag_close'] = '</li>';
+
+          $config['next_link'] = '下一页';      //next page link name
+          // $config['next_link'] = '&raquo;';      //next page link name
+          $config['next_tag_open'] = '<li class="next">';
+          $config['next_tag_close'] = '</li>';
+
+          $config['cur_tag_open'] = '<li class="active"><a>';        //用于包裹当前页链接的标签开头
+          $config['cur_tag_close'] = '</a></li>';      //用于包裹当前页链接的标签结尾
+
+          $config['num_tag_open'] = '<li>'; //number link tag open
+          $config['num_tag_close'] = '</li>';
+
+          $config['display_pages'] = FALSE; //not display the number link of prev page or next page
+
+
+
+
+
+
+5、项目开发常见问题汇总
+1.运行项目执行index控制器中的index默认模块或调用控制器和操作同名的模块（如hello/hello）时，为何会执行两次？
+原因：由于ci框架中Index/hello控制器实例化时，由于是在php5以上的版本，执行了
+            php5的construct构造函数而执行了一次$this->load->view();而后又调用了默认
+            的action操作即index/hello，从而导致了执行两次的结果。
+
+解决方法：1）在控制器中使用构造函数，并且调用父类构造函数实现构造函数覆盖，
+                          从而只执行一次。
+                          代码如下：
+                          public function __construct(){
+                              parent::__construct();
+                          }
+                    2）不使用与控制器同名的方法或不把控制器命名为index。
+
+            注：在php5中由于保留了对php4面向对象的兼容从而当出现两类构造函数时会先执行
+                    php5方式命名的构造函数再执行php4方式命名的构造函数。
+
+2.CI框架中如何设置首页访问页面的控制器？
+解决方法：在application的config配置目录中的routes配置文件中配置default_controller
+                    为index控制器即可。
+
+
+3.运行项目时出现include调用路径问题
+解决方法：1）可以查看所请求的路径错在哪，是路径符号出错还是路径名不对。
+                    2）通常路径名不对是由于入口文件或配置文件中配置的路径参数不正确
+                          导致读取的路径不正确。
+
+4.运行项目时出现An Error Was Encountered错误
+解决方法：1）错误中提示的内容是请求加载不到对应的文件。
+                    2）主要原因是由于视图路径或者主题路径设置不正确或者视图文件不存在，
+                          导致读取不到对应的视图文件。
+                    3）可查看入口文件的$view_folder参数和config目录下的constants配置文件中
+                          配置的视图和主题目录路径是否正确或该操作对应的视图文件是否存在。
+
+5.运行项目时出现404 Page Not Found 寻找不到对应页面
+解决方法：1）主要原因是所请求的模块、操作方法不存在。
+                    2）查看对应的控制器或操作方法是否存在。
+
+6.如何获取配置文件内容
+解决方法：1）对象形式获取
+                        //获取到的是所有的config配置对象，将config改成对应配置文件名
+                        //即可获取其他配置内容
+                        $config = $this->config;
+
+7.文件引用路径问题
+  1）文件引用放在application应用目录中
+      若真实需要将资源类文件放在application应用目录下引用，则需要将application目录下的.htaccess文件的配置设置成允许application等核心目录的
+      访问，但是可会寻在因htaccess配置不善导致某些漏洞问题。
+
+  2）存放于application应用目录同级目录下的另一文件内
+      此做法比较支持使用，主要是方便之后做缓存处理也方便前后台引用，不好的是在根目录下存在多个目录不太美观和整齐。
+

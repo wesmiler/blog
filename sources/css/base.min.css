@@ -1,0 +1,41 @@
+/* @Project base.min.css @Author Chen @Date 2015-12-23*/
+body,div,textarea,ul,ol,li,h1,h2,h3,h4,h5,h6,dl,dt,dd,input,label,button,pre,fieldset,th,td,p{
+    padding: 0px;
+    margin: 0px;
+}
+body{ font-family: "microsoft yahei"; line-height: 1.5; font-size: 14px;}
+ol,ul{ list-style: none outside none;}
+fieldset,img{ border: 0px none;}
+a{ cursor: pointer; color: inherit;}
+a:hover{ color: #ff9310; text-decoration: underline;}
+:link,:visited,ins,a{ text-decoration: none;}
+input[type='text'],input[type='password']{ margin: 0px; padding: 6px 12px; border-radius: 2px; border: 1px solid #ccc; text-indent: 4;}
+input:hover { background-color: rgba(232, 249, 99, 0.4);}
+.input-append .add-on:last-child, .input-append .btn:last-child, .input-append .btn-group:last-child > .dropdown-toggle {
+    border-radius: 0px 4px 4px 0px;
+}
+.input-append .add-on, .input-append .btn, .input-append .btn-group {
+    margin-left: -1px;
+}
+.input-append .add-on, .input-prepend .add-on, .input-append .btn, .input-prepend .btn, .input-append .btn-group > .dropdown-toggle, .input-prepend .btn-group > .dropdown-toggle {
+    vertical-align: top;
+    border-radius: 0px;
+}
+.input-append .add-on, .input-prepend .add-on {
+    display: inline-block;
+    width: auto;
+    /*height: 20px;*/
+    min-width: 16px;
+    padding: 6.5px 6px;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 20px;
+    text-align: center;
+    text-shadow: 0px 1px 0px #FFF;
+    background-color: #EEE;
+    border: 1px solid #CCC;
+}
+/*.input-append, .input-prepend {
+    font-size: 0px;
+    white-space: nowrap;
+}*/
